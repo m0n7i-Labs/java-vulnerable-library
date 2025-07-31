@@ -31,6 +31,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
+          file: ./Dockerfile      # explicitly reference the Dockerfile in the repo root
           push: true
           tags: |
             ghcr.io/m0n7i-labs/vulnerable-java:latest
