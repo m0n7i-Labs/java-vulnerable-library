@@ -1,4 +1,13 @@
-# Grant only the minimum permissions
+# .github/workflows/publish-ghcr.yml
+name: Build and Publish Docker Image to GHCR
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
 permissions:
   contents: read       # for checkout
   packages: write      # to publish to GitHub Container Registry
