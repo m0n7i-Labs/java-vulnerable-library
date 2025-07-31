@@ -1,1 +1,1 @@
-# java-vulnerable-library
+Dockerfile that builds a simple Java application including critically vulnerable versions of Jackson, Log4j, and Spring Core. You can use this image to test vulnerability scanning tools or demonstrate exploit scenarios.
