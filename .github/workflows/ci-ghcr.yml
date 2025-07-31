@@ -33,5 +33,5 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/vulnerable-java:latest
-            ghcr.io/${{ github.repository_owner }}/vulnerable-java:${{ github.sha }}
+            ghcr.io/m0n7i-labs/vulnerable-java:latest
+            ghcr.io/m0n7i-labs/vulnerable-java:${{ github.sha }}
