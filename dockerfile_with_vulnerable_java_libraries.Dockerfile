@@ -1,6 +1,4 @@
-##TEST
-
-# Stage 1: Build with Maven and include vulnerable dependencies
+# Build with Maven and include vulnerable dependencies
 FROM maven:3.6.3-jdk-8 AS builder
 WORKDIR /app
 
