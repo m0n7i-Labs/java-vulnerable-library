@@ -13,6 +13,7 @@
     </properties>
     <dependencies>
         <!-- Jackson-databind 2.9.8 (CVE-2018-7489, CVE-2018-14719) -->
+             <!-- Jackson-databind 2.9.8 (CVE-2018-7489, CVE-2018-14719) -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
