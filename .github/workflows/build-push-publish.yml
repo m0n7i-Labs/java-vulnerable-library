@@ -18,7 +18,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 1. Setup Java Environment
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
@@ -26,11 +25,9 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      # 2. Build the JAR file (Fixes the "target/not found" error)
       - name: Build with Maven
         run: mvn clean package -DskipTests
 
-      # 3. Log in to GitHub Container Registry
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v2
         with:
@@ -38,19 +35,17 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # 4. Build the Docker Image locally (DO NOT PUSH YET)
       - name: Build Docker image
         uses: docker/build-push-action@v3
         with:
           context: .
           file: ./Dockerfile
-          push: false  # Build locally so we can scan it first
-          load: true   # This loads the image into the local Docker daemon for scanning
+          push: false  
+          load: true   
           tags: |
-            ghcr.io/m0n7i-labs/vulnerable-java:latest
-            ghcr.io/m0n7i-labs/vulnerable-java:${{ github.sha }}
+            ghcr.io/${{ github.repository_owner }}/vulnerable-java:latest
+            ghcr.io/${{ github.repository_owner }}/vulnerable-java:${{ github.sha }}
 
-      # 5. Wiz CLI Setup and Scan
       - name: Download Wiz CLI
         run: curl -o wizcli https://downloads.wiz.io/wizcli/latest/wizcli-linux-amd64 && chmod +x wizcli
 
@@ -61,5 +56,4 @@ jobs:
           WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
 
       - name: Run wiz-cli docker image scan
-        # This will fail the build if vulnerabilities are found
-        run: ./wizcli docker scan --image
+        run: ./wizcli docker scan --image ghcr.io/${{ github.repository_owner }}/vulnerable-java:latest
