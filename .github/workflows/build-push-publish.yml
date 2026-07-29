@@ -15,36 +15,39 @@ jobs:
   build-scan-and-push:
     runs-on: ubuntu-latest
     steps:
+      # 1. Checkout repository
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
+      # 2. Set up Java & Build Project
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: 'maven'
 
-      # 1. Generate the Lowercase Name and set as an Output
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      # 3. Generate Lowercase Image Tag
       - name: Generate Image Name
         id: prep
         run: |
           REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           echo "image_tag=ghcr.io/${REPO_LOWER}" >> $GITHUB_OUTPUT
 
-      - name: Build with Maven
-        run: mvn clean package -DskipTests
-
+      # 4. Log in to GitHub Container Registry
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # 2. Reference the Output using steps.prep.outputs.image_tag
+      # 5. Build Docker Image locally for scanning
       - name: Build Docker image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile
@@ -54,15 +57,21 @@ jobs:
             ${{ steps.prep.outputs.image_tag }}:latest
             ${{ steps.prep.outputs.image_tag }}:${{ github.sha }}
 
+      # 6. Download Wiz CLI v1.x
       - name: Download Wiz CLI
-        run: curl -o wizcli https://downloads.wiz.io/wizcli/latest/wizcli-linux-amd64 && chmod +x wizcli
+        run: |
+          curl -o wizcli https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64
+          chmod +x wizcli
 
+      # 7. Authenticate to Wiz (v1 Syntax)
       - name: Authenticate to Wiz
-        run: ./wizcli auth --id "$WIZ_CLIENT_ID" --secret "$WIZ_CLIENT_SECRET"
         env:
           WIZ_CLIENT_ID: ${{ secrets.WIZ_CLIENT_ID }}
           WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
+        run: ./wizcli auth --client-id "$WIZ_CLIENT_ID" --client-secret "$WIZ_CLIENT_SECRET"
 
-      # 3. Use the Output for the Wiz Scan too
-      - name: Run wiz-cli docker image scan
-        run: ./wizcli docker scan --image ${{ steps.prep.outputs.image_tag }}:latest
+      # 8. Run Wiz Container Image Scan (v1 Syntax)
+      - name: Run Wiz Container Image Scan
+        run: |
+          ./wizcli scan container-image \
+            --image ${{ steps.prep.outputs.image_tag }}:latest
