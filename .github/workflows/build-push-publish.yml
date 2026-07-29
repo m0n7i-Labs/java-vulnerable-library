@@ -64,11 +64,11 @@ jobs:
           chmod +x wizcli
 
       # 7. Authenticate to Wiz (v1 Syntax)
-      - name: Authenticate to Wiz
+        - name: Authenticate to Wiz
         env:
           WIZ_CLIENT_ID: ${{ secrets.WIZ_CLIENT_ID }}
           WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
-        run: ./wizcli auth --client-id "$WIZ_CLIENT_ID" --client-secret "$WIZ_CLIENT_SECRET"
+        run: ./wizcli auth --id "$WIZ_CLIENT_ID" --secret "$WIZ_CLIENT_SECRET"
 
       # 8. Run Wiz Container Image Scan (v1 Syntax)
       - name: Run Wiz Container Image Scan
